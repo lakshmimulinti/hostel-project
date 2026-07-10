@@ -1,0 +1,63 @@
+<div class="faq-page-container">
+  <div class="faq-wrapper-card">
+    <div class="faq-header">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Back to Listings
+      </button>
+      <h2><i class="fas fa-question-circle"></i> HostelHub Help Center</h2>
+      <p>Find answers to common questions about bookings, amenities, safety, and policies.</p>
+    </div>
+
+    <!-- Live Search Box -->
+    <div class="faq-search-box">
+      <div class="search-input-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" [(ngModel)]="searchQuery" (input)="filterFaqs()" placeholder="Search FAQs by keywords (e.g. food, deposit, wifi)...">
+      </div>
+    </div>
+
+    <div class="faq-main-layout">
+      <!-- Left side: category selectors -->
+      <div class="faq-categories">
+        <h3>Categories</h3>
+        <button class="category-btn" 
+                *ngFor="let city of cities" 
+                [class.active]="selectedCity === city" 
+                (click)="setCity(city)">
+          <i class="fas" [ngClass]="city === 'All' ? 'fa-globe' : (city === 'General' ? 'fa-cog' : 'fa-map-marker-alt')"></i>
+          {{ city }}
+        </button>
+      </div>
+
+      <!-- Right side: accordion list -->
+      <div class="faq-accordion-container">
+        <div class="category-header">
+          <h3>Showing questions for: <span class="highlight">{{ selectedCity }} Category</span></h3>
+          <span class="faq-count">{{ filteredFaqs.length }} answers found</span>
+        </div>
+
+        <div class="faq-accordion-list" *ngIf="filteredFaqs.length > 0; else noFaqs">
+          <div class="faq-item-card" *ngFor="let faq of filteredFaqs; let i = index" [class.open]="faq.open">
+            <div class="faq-question-bar" (click)="toggleFaq(i)">
+              <span class="faq-q-text">{{ faq.q }}</span>
+              <span class="faq-category-badge">{{ faq.category }}</span>
+              <i class="fas fa-chevron-down faq-arrow"></i>
+            </div>
+            <div class="faq-answer-panel" *ngIf="faq.open">
+              <p>{{ faq.a }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- No FAQ Results fallback -->
+        <ng-template #noFaqs>
+          <div class="no-faqs-fallback">
+            <i class="fas fa-search-minus"></i>
+            <h4>No FAQs Found</h4>
+            <p>We couldn't find any questions matching your query "{{ searchQuery }}". Please try other keywords.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

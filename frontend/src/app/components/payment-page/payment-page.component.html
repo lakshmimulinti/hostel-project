@@ -1,0 +1,171 @@
+<div class="payment-page-container">
+  <div class="payment-wrapper-card">
+    <div class="payment-header">
+      <h2><i class="fas fa-shield-alt"></i> HostelHub Checkout Payroll</h2>
+      <p>Please review and complete your booking payment securely.</p>
+    </div>
+
+    <div class="payment-main-content">
+      <!-- Left side: booking summary -->
+      <div class="booking-details-summary">
+        <h3>Booking Details</h3>
+        <div class="summary-card">
+          <div class="summary-row">
+            <span class="label">Hostel Name</span>
+            <span class="value">{{ bookingData?.hostelName }}</span>
+          </div>
+          <div class="summary-row" *ngIf="bookingData?.hostelAddress">
+            <span class="label">Address</span>
+            <span class="value address-val">{{ bookingData?.hostelAddress }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Sharing Room Type</span>
+            <span class="value">{{ bookingData?.roomType }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Check-in Date</span>
+            <span class="value">{{ bookingData?.checkInDate | date:'mediumDate' }}</span>
+          </div>
+          <hr class="summary-divider">
+          <div class="summary-row user-info">
+            <span class="label">Booked For</span>
+            <span class="value">{{ bookingData?.fullName }}</span>
+          </div>
+          <div class="summary-row user-info">
+            <span class="label">Mobile No</span>
+            <span class="value">{{ bookingData?.mobileNo }}</span>
+          </div>
+          <div class="summary-row user-info">
+            <span class="label">Email</span>
+            <span class="value">{{ bookingData?.email }}</span>
+          </div>
+          <hr class="summary-divider">
+          <div class="summary-row total-row">
+            <span class="label">Total Rent Amount</span>
+            <span class="value amount">₹{{ bookingData?.price }} <small>/mo</small></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: payment selectors and details -->
+      <div class="payment-gateways-container">
+        <h3>Choose Payment Option</h3>
+
+        <!-- Payment Tabs -->
+        <div class="gateway-tabs">
+          <button class="gateway-tab" [class.active]="paymentMethod === 'upi'" (click)="setPaymentMethod('upi')" [disabled]="isPaymentProcessing">
+            <i class="fas fa-mobile-alt"></i> UPI / Apps
+          </button>
+          <button class="gateway-tab" [class.active]="paymentMethod === 'card'" (click)="setPaymentMethod('card')" [disabled]="isPaymentProcessing">
+            <i class="far fa-credit-card"></i> Cards
+          </button>
+          <button class="gateway-tab" [class.active]="paymentMethod === 'netbanking'" (click)="setPaymentMethod('netbanking')" [disabled]="isPaymentProcessing">
+            <i class="fas fa-university"></i> Net Banking
+          </button>
+          <button class="gateway-tab" [class.active]="paymentMethod === 'arrival'" (click)="setPaymentMethod('arrival')" [disabled]="isPaymentProcessing">
+            <i class="fas fa-money-bill-wave"></i> At Property
+          </button>
+        </div>
+
+        <!-- UPI Tab Content -->
+        <div class="gateway-content" *ngIf="paymentMethod === 'upi'">
+          <p class="section-desc">Select your preferred UPI client app:</p>
+          <div class="upi-apps-row">
+            <div class="upi-app-card" [class.selected]="upiMethod === 'phonepe'" (click)="setUpiMethod('phonepe')">
+              <i class="fas fa-wallet purple"></i>
+              <span>PhonePe</span>
+            </div>
+            <div class="upi-app-card" [class.selected]="upiMethod === 'gpay'" (click)="setUpiMethod('gpay')">
+              <i class="fab fa-google blue"></i>
+              <span>GPay</span>
+            </div>
+            <div class="upi-app-card" [class.selected]="upiMethod === 'paytm'" (click)="setUpiMethod('paytm')">
+              <i class="fas fa-money-check blue-light"></i>
+              <span>Paytm</span>
+            </div>
+            <div class="upi-app-card" [class.selected]="upiMethod === 'upi_id'" (click)="setUpiMethod('upi_id')">
+              <i class="fas fa-at green"></i>
+              <span>UPI ID</span>
+            </div>
+          </div>
+
+          <div class="upi-id-box" *ngIf="upiMethod === 'upi_id'">
+            <label>Enter UPI ID (e.g. name@bank)</label>
+            <input type="text" [(ngModel)]="upiIdInput" placeholder="name@bank" [disabled]="isPaymentProcessing">
+          </div>
+        </div>
+
+        <!-- Cards Tab Content -->
+        <div class="gateway-content" *ngIf="paymentMethod === 'card'">
+          <p class="section-desc">Enter your Debit/Credit card credentials:</p>
+          <div class="card-inputs">
+            <div class="card-group">
+              <label>Name on Card</label>
+              <input type="text" [(ngModel)]="cardDetails.name" placeholder="John Doe" [disabled]="isPaymentProcessing">
+            </div>
+            <div class="card-group">
+              <label>Card Number</label>
+              <div class="card-number-wrapper">
+                <i class="far fa-credit-card"></i>
+                <input type="text" [(ngModel)]="cardDetails.number" placeholder="•••• •••• •••• ••••" maxLength="19" [disabled]="isPaymentProcessing">
+              </div>
+            </div>
+            <div class="card-row">
+              <div class="card-group half">
+                <label>Expiry Date</label>
+                <input type="text" [(ngModel)]="cardDetails.expiry" placeholder="MM/YY" maxLength="5" [disabled]="isPaymentProcessing">
+              </div>
+              <div class="card-group half">
+                <label>CVV</label>
+                <input type="password" [(ngModel)]="cardDetails.cvv" placeholder="•••" maxLength="4" [disabled]="isPaymentProcessing">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Banking Tab Content -->
+        <div class="gateway-content" *ngIf="paymentMethod === 'netbanking'">
+          <p class="section-desc">Select your bank from the options below:</p>
+          <select class="bank-selector" [disabled]="isPaymentProcessing">
+            <option>SBI (State Bank of India)</option>
+            <option>HDFC Bank</option>
+            <option>ICICI Bank</option>
+            <option>Axis Bank</option>
+            <option>Kotak Mahindra Bank</option>
+          </select>
+        </div>
+
+        <!-- Pay At Property Tab Content -->
+        <div class="gateway-content" *ngIf="paymentMethod === 'arrival'">
+          <div class="arrival-card-notice">
+            <i class="fas fa-hand-holding-usd"></i>
+            <h4>Pay Directly At Property</h4>
+            <p>Your booking is guaranteed immediately. You don't need to pay anything online now. You can settle the security deposit and first month's rent with the PG warden when you arrive using Cash, Card, or UPI.</p>
+          </div>
+        </div>
+
+        <!-- SSL certificate and trust -->
+        <p class="ssl-notice"><i class="fas fa-lock"></i> SSL Secured 256-bit Connection. Your credentials are fully encrypted.</p>
+      </div>
+    </div>
+
+    <!-- Actions Footer -->
+    <div class="payment-footer-actions">
+      <button class="btn-cancel" (click)="cancelPayment()" [disabled]="isPaymentProcessing">
+        <i class="fas fa-arrow-left"></i> Cancel Booking
+      </button>
+
+      <button class="btn-pay" (click)="processPayment()" [disabled]="isPaymentProcessing">
+        <span *ngIf="!isPaymentProcessing && !paymentSuccess">
+          Pay &amp; Confirm Booking (₹{{ bookingData?.price }})
+        </span>
+        <span *ngIf="isPaymentProcessing && !paymentSuccess">
+          <i class="fas fa-circle-notch fa-spin"></i> Processing Checkout...
+        </span>
+        <span *ngIf="paymentSuccess">
+          <i class="fas fa-check-circle animated"></i> Payment Completed!
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

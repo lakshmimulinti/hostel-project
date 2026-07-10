@@ -1,0 +1,4 @@
+-- 003_add_hostel_details.sql
+ALTER TABLE hostels ADD COLUMN IF NOT EXISTS rating NUMERIC(3,1) DEFAULT 4.0;
+ALTER TABLE hostels ADD COLUMN IF NOT EXISTS total_beds INT DEFAULT 50;
+ALTER TABLE hostels ADD COLUMN IF NOT EXISTS room_details JSONB;

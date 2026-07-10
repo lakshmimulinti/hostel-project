@@ -1,0 +1,201 @@
+<nav class="top-navbar">
+  <div class="nav-left">
+    <div class="logo"><i class="fas fa-building"></i> HostelHub</div>
+
+    <div class="city-dropdown" (click)="toggleCityMenu($event)">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>{{ selectedCity }}</span>
+      <i class="fas fa-chevron-down"></i>
+
+      <ul class="dropdown-list" *ngIf="showCityMenu">
+        <li *ngFor="let city of cities" (click)="selectCity(city); $event.stopPropagation()">{{ city }}</li>
+      </ul>
+    </div>
+  </div>
+
+ <div class="nav-right">
+  <a class="nav-link"><i class="fas fa-star"></i> Offers</a>
+
+  <div class="help-dropdown" (click)="toggleHelpMenu($event)">
+    <i class="fas fa-headset"></i>
+    <span>Help</span>
+    <i class="fas fa-chevron-down"></i>
+
+    <ul class="dropdown-list help-list" *ngIf="showHelpMenu">
+      <li (click)="callSupport(); $event.stopPropagation()"><i class="fas fa-phone-alt"></i> Call Support</li>
+      <li (click)="emailSupport(); $event.stopPropagation()"><i class="fas fa-envelope"></i> Email Us</li>
+      <li (click)="openFAQ(); $event.stopPropagation()"><i class="fas fa-question-circle"></i> FAQs</li>
+    </ul>
+  </div>
+
+  <div class="profile-dropdown" (click)="toggleProfileMenu($event)">
+    <i class="fas fa-user-circle"></i>
+    <span>{{ userName }}</span>
+    <i class="fas fa-chevron-down"></i>
+
+    <ul class="dropdown-list" *ngIf="showProfileMenu">
+      <li (click)="goToProfile(); $event.stopPropagation()">My Profile</li>
+      <li (click)="goToBookings(); $event.stopPropagation()">My Bookings</li>
+      <li (click)="logout(); $event.stopPropagation()">Logout</li>
+    </ul>
+  </div>
+</div>
+</nav>
+
+<div class="filter-bar">
+  <div class="filter-tabs">
+    <button *ngFor="let tab of filterTabs"
+            class="tab-item"
+            [class.active]="activeFilter === tab.key"
+            (click)="setActiveFilter(tab.key)">
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <div class="search-box">
+    <i class="fas fa-search"></i>
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Search locality, area, or landmark...">
+    <button class="search-btn" (click)="onSearch()">Search</button>
+  </div>
+</div>
+
+<!-- HERO SLIDER -->
+<div class="hero-slider">
+
+  <div class="slide" *ngFor="let slide of heroSlides; let i = index"
+       [class.active]="i === currentSlide"
+       [ngStyle]="{'background-image': 'url(' + slide.image + ')'}">
+
+    <div class="slide-overlay" [ngStyle]="{'background': slide.overlayColor}"></div>
+
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1>{{ slide.title }} <span>{{ slide.highlight }}</span></h1>
+        <p>{{ slide.subtitle }}</p>
+
+        <div class="store-buttons">
+          <button class="store-btn"><i class="fab fa-apple"></i> App Store</button>
+          <button class="store-btn"><i class="fab fa-google-play"></i> Google Play</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="slide-arrow left" (click)="prevSlide()">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <button class="slide-arrow right" (click)="nextSlide()">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+
+  <div class="slide-dots">
+    <span *ngFor="let slide of heroSlides; let i = index"
+          class="dot"
+          [class.active]="i === currentSlide"
+          (click)="goToSlide(i)"></span>
+  </div>
+</div>
+<!-- END HERO SLIDER -->
+ 
+
+<!-- TESTIMONIALS -->
+<div class="testimonials-section">
+  <h2>What Our Tenants Say</h2>
+  <p class="testimonials-subtitle">Real stories from real people who found their perfect home.</p>
+
+  <div class="testimonials-grid"
+       (mouseenter)="pauseTestimonialSlide()"
+       (mouseleave)="resumeTestimonialSlide()">
+    <div class="testimonial-card" *ngFor="let t of visibleTestimonials">
+      <div class="testimonial-image">
+        <img [src]="t.image" [alt]="t.name">
+      </div>
+
+      <div class="testimonial-stars">
+        <i class="fas fa-star" *ngFor="let s of getStars(t.rating)"></i>
+      </div>
+
+      <p class="testimonial-quote">"{{ t.quote }}"</p>
+
+      <div class="testimonial-author">
+        <div class="author-avatar">{{ t.initial }}</div>
+        <div>
+          <div class="author-name">{{ t.name }}</div>
+          <div class="author-role">{{ t.role }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonial-dots">
+    <span *ngFor="let s of testimonials; let i = index"
+          class="dot"
+          [class.active]="i === currentTestimonialSlide"
+          (click)="goToTestimonialSlide(i)"></span>
+  </div>
+</div>
+<!-- END TESTIMONIALS -->
+
+<!-- LIFE AT HOSTELHUB -->
+<div class="life-section">
+  <div class="life-header">
+    <i class="fas fa-building life-logo-icon"></i>
+    <h2>Life at HostelHub</h2>
+  </div>
+
+  <div class="life-tabs">
+    <span *ngFor="let tab of lifeTabs"
+          class="life-tab"
+          [class.active]="activeLifeTab === tab.key"
+          (click)="setLifeTab(tab.key)">
+      {{ tab.label }}
+    </span>
+  </div>
+
+  <div class="life-content">
+    <div class="life-image">
+      <img [src]="currentLifeTab.image" [alt]="currentLifeTab.title">
+    </div>
+
+    <div class="life-info">
+      <i class="fas" [ngClass]="currentLifeTab.icon"></i>
+      <h3>{{ currentLifeTab.title }}</h3>
+      <p>{{ currentLifeTab.description }}</p>
+    </div>
+  </div>
+</div>
+<!-- END LIFE AT HOSTELHUB -->
+
+<!-- AMENITIES -->
+<div class="amenities-section">
+  <h2>Hostel Hub Amenities</h2>
+  <p class="amenities-subtitle">Hostel Hub makes sure to provide a range of amenities to make you feel like you're home</p>
+
+  <div class="amenities-grid">
+    <div class="amenity-item" *ngFor="let item of amenities">
+      <div class="amenity-icon">
+        <i class="fas" [ngClass]="item.icon"></i>
+      </div>
+      <span>{{ item.label }}</span>
+    </div>
+  </div>
+
+  <button class="get-started-btn" (click)="getStarted()">LET'S GET STARTED</button>
+</div>
+<!-- END AMENITIES -->
+
+<!-- OUR PRESENCE -->
+<div class="presence-section">
+  <h2>OUR PRESENCE</h2>
+  <div class="presence-underline"></div>
+
+  <div class="presence-grid">
+    <div class="presence-item" *ngFor="let stat of presenceStats">
+      <i class="fas" [ngClass]="stat.icon"></i>
+      <div class="presence-value">{{ stat.value }}</div>
+      <div class="presence-label">{{ stat.label }}</div>
+    </div>
+  </div>
+</div>
+<!-- END OUR PRESENCE -->
+

@@ -1,0 +1,243 @@
+<!-- TOP FILTER BAR -->
+<div class="listings-topbar">
+  <div class="topbar-left">
+    <!-- Updated PGO Logo to HostelHub Logo -->
+    <div class="logo" (click)="goHome()">
+      <i class="fas fa-building"></i> HostelHub
+    </div>
+
+    <div class="pill-dropdown" (click)="toggleCityMenu($event)">
+      <span>{{ selectedCity }}</span>
+      <i class="fas fa-chevron-down"></i>
+      <ul class="pill-dropdown-list" *ngIf="showCityMenu">
+        <li *ngFor="let city of cities" (click)="selectCity(city); $event.stopPropagation()">{{ city }}</li>
+      </ul>
+    </div>
+
+    <div class="pill-dropdown" (click)="toggleStayTypeMenu($event)">
+      <span>{{ selectedStayType }}</span>
+      <i class="fas fa-chevron-down"></i>
+      <ul class="pill-dropdown-list" *ngIf="showStayTypeMenu">
+        <li *ngFor="let type of stayTypes" (click)="selectStayType(type); $event.stopPropagation()">{{ type }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <a class="top-link"><i class="fas fa-star"></i> Offers</a>
+    <a class="top-link" (click)="goHome()"><i class="fas fa-home"></i> Home</a>
+  </div>
+</div>
+
+<!-- SEARCH & QUICK FILTERS BAR -->
+<div class="search-filter-bar">
+  <div class="search-input-box">
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Enter area, city or landmark..." (keyup.enter)="onSearch()">
+    <i class="fas fa-search" (click)="onSearch()"></i>
+  </div>
+
+  <!-- Interactive Quick Filter Pills -->
+  <div class="quick-pill" [class.active-pill]="verifiedFilterActive" (click)="toggleQuickFilter('Verified Properties')">
+    <i class="fas fa-check-circle" *ngIf="verifiedFilterActive"></i> Verified Properties
+  </div>
+
+  <div class="quick-pill" [class.active-pill]="acFilterActive" (click)="toggleQuickFilter('AC')">
+    <i class="fas fa-snowflake" *ngIf="acFilterActive"></i> AC
+  </div>
+
+  <div class="quick-pill" [class.active-pill]="nonAcFilterActive" (click)="toggleQuickFilter('NON-AC')">
+    NON-AC
+  </div>
+
+  <div class="quick-pill" [class.active-pill]="selectedPriceRange !== 'all'" (click)="toggleQuickFilter('Price')">
+    Price 
+    <span *ngIf="selectedPriceRange !== 'all'"> ({{ selectedPriceRange === 'under5k' ? '< ₹5k' : (selectedPriceRange === '5k-10k' ? '₹5k-₹10k' : '> ₹10k') }})</span>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</div>
+
+<!-- APP PROMO BANNER -->
+<div class="promo-banner" *ngIf="showBanner">
+  <span class="promo-text">Download HostelHub App &amp; Get Rs. 400 Cashback Instantly!</span>
+  <div class="promo-badges">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store">
+  </div>
+  <i class="fas fa-times promo-close" (click)="closeBanner()"></i>
+</div>
+
+<!-- BREADCRUMB + HEADER -->
+<div class="listings-header">
+  <div class="breadcrumb">
+    <a (click)="goHome()">Home</a> <span>&gt;</span> <a>{{ selectedCity }}</a>
+  </div>
+
+  <div class="header-row">
+    <div>
+      <h1>{{ totalCount | number }} {{ selectedStayType }} in {{ selectedCity }}</h1>
+      <button class="faq-btn" (click)="toggleFaqSection()">{{ selectedCity }} FAQS</button>
+    </div>
+
+    <!-- Bound sort action handler -->
+    <div class="sort-box">
+      <label>SORT BY</label>
+      <select [(ngModel)]="sortBy" (change)="applyFiltersAndSort()">
+        <option *ngFor="let opt of sortOptions" [value]="opt">{{ opt }}</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- PROPERTY AND BOOKING SPLIT LAYOUT -->
+<div class="listings-container-split">
+  <!-- Left Side: Hostel Cards -->
+  <div class="left-listings">
+    <div class="property-card" *ngFor="let p of properties" 
+         [class.active-card]="selectedHostel?.id === p.id"
+         (click)="selectHostel(p)">
+
+      <!-- Real photo style card -->
+      <div class="property-media photo" *ngIf="p.photoImage" [ngStyle]="{'background-image': 'url(' + p.photoImage + ')'}">
+        <span class="badge badge-pink" *ngIf="p.badge">{{ p.badge }}</span>
+        <span class="badge badge-verified" *ngIf="p.verified"><i class="fas fa-check-circle"></i> PGO Verified</span>
+      </div>
+
+      <div class="property-body">
+        <h3 class="property-name">{{ p.name }}</h3>
+
+        <p class="property-address" *ngIf="p.address">{{ p.address }}</p>
+        
+        <div class="property-meta-row">
+          <span class="property-distance" *ngIf="p.distanceKm"><i class="fas fa-map-marker-alt"></i> {{ p.distanceKm }} KMS</span>
+          <span class="property-rating" *ngIf="p.rating"><i class="fas fa-star text-warning"></i> {{ p.rating }}</span>
+        </div>
+
+        <div class="property-amenities" *ngIf="p.amenities?.length">
+          <i class="fas" [ngClass]="a.icon" *ngFor="let a of p.amenities | slice:0:3"></i>
+          <span class="more-count" *ngIf="p.moreCount">+{{ p.moreCount }} More</span>
+        </div>
+
+        <div class="property-price" *ngIf="p.priceDaily || p.priceMonthly">
+          <span *ngIf="p.priceDaily">₹{{ p.priceDaily }} <small>Daily Onwards</small></span>
+          <span *ngIf="p.priceMonthly">₹{{ p.priceMonthly }} <small>Monthly Onwards</small></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Loader Indicator -->
+    <div class="bottom-loader-container" *ngIf="isLoading">
+      <div class="loader-spinner"></div>
+      <p>Loading premium hostels...</p>
+    </div>
+
+    <!-- No Hostels State -->
+    <div class="no-hostels-card" *ngIf="properties.length === 0">
+      <i class="fas fa-hotel"></i>
+      <h3>No Hostels Found</h3>
+      <p>We couldn't find any hostels matching your filters in {{ selectedCity }}. Please clear search or reset filters.</p>
+    </div>
+  </div>
+
+  <!-- Right Side: Booking Form & Sharing Room Details -->
+  <div class="right-booking-container" id="booking-form-section">
+    <div class="booking-sticky-card" *ngIf="selectedHostel; else noSelection">
+      
+      <!-- Room selection, sharing options & capacity -->
+      <div class="booking-card-header">
+        <h3>Book your hostel</h3>
+        <p class="booking-hostel-name">{{ selectedHostel.name }}</p>
+        <span class="booking-hostel-address"><i class="fas fa-map-marker-alt"></i> {{ selectedHostel.address }}</span>
+        
+        <!-- Hostel Meta Details (Rating and Capacity) -->
+        <div class="hostel-stats-row">
+          <span class="stat-badge rating"><i class="fas fa-star"></i> {{ selectedHostel.rating }} / 5.0</span>
+          <span class="stat-badge capacity"><i class="fas fa-bed"></i> Total capacity: {{ selectedHostel.totalBeds }} Beds</span>
+        </div>
+      </div>
+
+      <!-- Room Sharing Option Selection -->
+      <div class="room-sharing-selection" *ngIf="selectedHostel.roomDetails && selectedHostel.roomDetails.length > 0">
+        <label class="section-label"><i class="fas fa-door-open"></i> Select Room &amp; Sharing Option:</label>
+        
+        <div class="sharing-grid">
+          <div class="sharing-item" 
+               *ngFor="let room of selectedHostel.roomDetails"
+               [class.selected-sharing]="bookingForm.roomType === room.type"
+               [class.sharing-sold-out]="room.available === 0"
+               (click)="room.available > 0 && selectRoomType(room.type)">
+            
+            <div class="sharing-main-info">
+              <span class="sharing-name">{{ room.type }}</span>
+              <span class="sharing-availability" 
+                    [ngClass]="room.available > 3 ? 'avail-high' : (room.available > 0 ? 'avail-low' : 'avail-none')">
+                {{ room.available > 0 ? room.available + ' beds left' : 'Full House' }}
+              </span>
+            </div>
+            
+            <div class="sharing-pricing">
+              <span class="sharing-amt">₹{{ room.price }}</span>
+              <span class="sharing-unit">/mo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form (submit)="submitBooking()" #bForm="ngForm" class="booking-inputs-form">
+        <!-- Live Selected Pricing -->
+        <div class="booking-price-badge">
+          <span>Booking Cost: <strong>₹{{ getCurrentSelectedRoomPrice() }}</strong> / Month</span>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Full Name</label>
+          <input type="text" [(ngModel)]="bookingForm.fullName" name="fullName" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Email Address</label>
+          <input type="email" [(ngModel)]="bookingForm.email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Mobile Number</label>
+          <input type="tel" [(ngModel)]="bookingForm.mobileNo" name="mobileNo" placeholder="Enter mobile number" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label><i class="fas fa-calendar-alt"></i> Check-in Date</label>
+            <input type="date" [(ngModel)]="bookingForm.checkInDate" name="checkInDate" required>
+          </div>
+
+          <div class="form-group half-width">
+            <label><i class="fas fa-bed"></i> Room Type</label>
+            <!-- Room select synchronized with roomDetails -->
+            <select [(ngModel)]="bookingForm.roomType" name="roomType" required>
+              <option *ngFor="let room of selectedHostel.roomDetails" 
+                      [value]="room.type" 
+                      [disabled]="room.available === 0">
+                {{ room.type }} (₹{{ room.price }}/mo)
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="book-now-btn" [disabled]="isSubmitting || !bForm.valid">
+          <span *ngIf="!isSubmitting">Book Now</span>
+          <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Fallback if no hostel selected -->
+    <ng-template #noSelection>
+      <div class="no-selection-card">
+        <i class="fas fa-hotel"></i>
+        <h3>Select a Hostel</h3>
+        <p>Please click on any hostel card from the left side list to view details and make a booking.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

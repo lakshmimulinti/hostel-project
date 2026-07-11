@@ -1,3 +1,4 @@
+// config/mailer.js
 const https = require('https');
 require('dotenv').config();
 
@@ -5,27 +6,28 @@ const sendOtpEmail = (toEmail, otp) => {
     return new Promise((resolve, reject) => {
         console.log('Sending OTP email to:', toEmail);
 
-        if (!process.env.RESEND_API_KEY) {
-            return reject(new Error("RESEND_API_KEY is missing from environment variables."));
+        if (!process.env.BREVO_API_KEY) {
+            return reject(new Error("BREVO_API_KEY is missing from environment variables."));
         }
 
+        const senderEmail = process.env.EMAIL_USER || 'mulintilakshmim@gmail.com';
+
         const data = JSON.stringify({
-            // Note: On Resend's free tier without a custom domain, 
-            // you must use 'onboarding@resend.dev' as the sender
-            from: 'HostelHub <onboarding@resend.dev>',
-            to: toEmail,
+            sender: { name: 'HostelHub', email: senderEmail },
+            to: [{ email: toEmail }],
             subject: 'Your HostelHub OTP Code',
-            html: `<p>Your OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
+            htmlContent: `<p>Your OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
         });
 
         const options = {
-            hostname: 'api.resend.com',
+            hostname: 'api.brevo.com',
             port: 443,
-            path: '/emails',
+            path: '/v3/smtp/email',
             method: 'POST',
             headers: {
+                'accept': 'application/json',
+                'api-key': process.env.BREVO_API_KEY,
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
                 'Content-Length': Buffer.byteLength(data)
             }
         };
@@ -46,7 +48,7 @@ const sendOtpEmail = (toEmail, otp) => {
                     } catch (e) {
                         parsedError = { message: body || `HTTP Status ${res.statusCode}` };
                     }
-                    console.error('Resend API Error:', parsedError);
+                    console.error('Brevo API Error:', parsedError);
                     reject(new Error(`Failed to send email: ${parsedError.message || 'Unknown error'}`));
                 }
             });

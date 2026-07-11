@@ -190,12 +190,12 @@ exports.loginWithPassword = async (req, res) => {
 exports.diagnostic = async (req, res) => {
     const results = {
         database: { status: 'testing', message: '' },
-        resend: { status: 'testing', message: '' },
+        brevo: { status: 'testing', message: '' },
         env: {
             NODE_ENV: process.env.NODE_ENV || 'not set',
             PORT: process.env.PORT || 'not set',
             HAS_DATABASE_URL: !!process.env.DATABASE_URL,
-            HAS_RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+            HAS_BREVO_API_KEY: !!process.env.BREVO_API_KEY,
             HAS_DB_USER: !!process.env.DB_USER,
             HAS_DB_HOST: !!process.env.DB_HOST,
         }
@@ -223,12 +223,12 @@ exports.diagnostic = async (req, res) => {
         results.database.message = `Database connection failed: ${err.message}`;
     }
 
-    if (!process.env.RESEND_API_KEY) {
-        results.resend.status = 'failed';
-        results.resend.message = "RESEND_API_KEY is missing from environment variables.";
+    if (!process.env.BREVO_API_KEY) {
+        results.brevo.status = 'failed';
+        results.brevo.message = "BREVO_API_KEY is missing from environment variables.";
     } else {
-        results.resend.status = 'configured';
-        results.resend.message = "RESEND_API_KEY is present.";
+        results.brevo.status = 'configured';
+        results.brevo.message = "BREVO_API_KEY is present.";
     }
 
     res.status(200).json(results);

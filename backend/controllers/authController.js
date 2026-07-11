@@ -37,9 +37,16 @@ exports.sendOtp = async (req, res) => {
         res.status(200).json({ message: "OTP sent successfully to your email." });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Server Error during sending OTP." });
-    }
+    console.error("===== OTP ERROR =====");
+    console.error(err);
+    console.error(err.message);
+    console.error("=====================");
+
+    res.status(500).json({
+        error: "Server Error during sending OTP.",
+        message: err.message
+    });
+}
 };
 
 // 2. VERIFY OTP & LOGIN

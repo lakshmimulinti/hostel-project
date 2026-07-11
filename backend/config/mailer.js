@@ -10,16 +10,23 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendOtpEmail = async (toEmail, otp) => {
-    console.log('Sending OTP email to:', toEmail, 'using account:', process.env.EMAIL_USER);
+    try {
+        console.log("EMAIL_USER:", process.env.EMAIL_USER);
+        console.log("Sending OTP to:", toEmail);
 
-    await transporter.sendMail({
-        from: `"HostelHub" <${process.env.EMAIL_USER}>`,
-        to: toEmail,
-        subject: 'Your HostelHub OTP Code',
-        html: `<p>Your OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
-    });
+        await transporter.sendMail({
+            from: `"HostelHub" <${process.env.EMAIL_USER}>`,
+            to: toEmail,
+            subject: "Your HostelHub OTP Code",
+            html: `<p>Your OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
+        });
 
-    console.log('✅ Email sent successfully to', toEmail);
+        console.log("✅ Email sent successfully");
+
+    } catch (err) {
+        console.error("MAIL ERROR:", err);
+        throw err;
+    }
 };
 
 module.exports = { sendOtpEmail };

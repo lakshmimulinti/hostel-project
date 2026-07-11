@@ -296,6 +296,22 @@ export class ListingsComponent implements OnInit {
   selectCity(city: string) {
     this.selectedCity = city;
     this.showCityMenu = false;
+    
+    // Reset filters upon changing city to avoid city-specific queries causing empty results
+    this.searchQuery = '';
+    this.verifiedFilterActive = false;
+    this.acFilterActive = false;
+    this.nonAcFilterActive = false;
+    this.selectedPriceRange = 'all';
+    this.selectedStayType = 'All Stay Types';
+
+    // Sync URL query params
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { city: this.selectedCity, query: null, stayType: null },
+      queryParamsHandling: 'merge'
+    });
+
     this.loadHostels(city);
   }
 

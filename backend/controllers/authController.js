@@ -185,3 +185,51 @@ exports.loginWithPassword = async (req, res) => {
         res.status(500).json({ error: "Server Error during login." });
     }
 };
+
+// 5. PRODUCTION DIAGNOSTIC ENDPOINT
+exports.diagnostic = async (req, res) => {
+    const results = {
+        database: { status: 'testing', message: '' },
+        resend: { status: 'testing', message: '' },
+        env: {
+            NODE_ENV: process.env.NODE_ENV || 'not set',
+            PORT: process.env.PORT || 'not set',
+            HAS_DATABASE_URL: !!process.env.DATABASE_URL,
+            HAS_RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+            HAS_DB_USER: !!process.env.DB_USER,
+            HAS_DB_HOST: !!process.env.DB_HOST,
+        }
+    };
+
+    try {
+        const dbRes = await pool.query('SELECT NOW()');
+        results.database.status = 'success';
+        results.database.message = `Connected successfully! Database time: ${dbRes.rows[0].now}`;
+        
+        try {
+            const tableCheck = await pool.query("SELECT to_regclass('public.users') as exists");
+            if (tableCheck.rows[0].exists) {
+                results.database.usersTableExists = true;
+            } else {
+                results.database.usersTableExists = false;
+                results.database.status = 'warning';
+                results.database.message = "Connected to DB, but 'users' table does not exist. Did you run migrations?";
+            }
+        } catch (e) {
+            results.database.tableCheckError = e.message;
+        }
+    } catch (err) {
+        results.database.status = 'failed';
+        results.database.message = `Database connection failed: ${err.message}`;
+    }
+
+    if (!process.env.RESEND_API_KEY) {
+        results.resend.status = 'failed';
+        results.resend.message = "RESEND_API_KEY is missing from environment variables.";
+    } else {
+        results.resend.status = 'configured';
+        results.resend.message = "RESEND_API_KEY is present.";
+    }
+
+    res.status(200).json(results);
+};

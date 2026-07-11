@@ -719,6 +719,28 @@
       .nav-link {
         gap: 4px !important;
       }
+
+      .profile-dropdown {
+        span {
+          display: none !important; /* Hide long username on mobile */
+        }
+        i.fa-chevron-down {
+          display: none !important; /* Hide chevron on mobile */
+        }
+        i.fa-user-circle {
+          font-size: 20px !important;
+          color: #1a56b0 !important;
+        }
+      }
+
+      .help-dropdown {
+        i.fa-chevron-down {
+          display: none !important; /* Hide chevron on mobile */
+        }
+        i.fa-headset {
+          font-size: 16px !important;
+        }
+      }
     }
   }
 
@@ -727,11 +749,14 @@
 
     .filter-tabs {
       display: flex !important;
+      justify-content: flex-start !important; /* Align tabs to start to prevent left cutoff */
+      align-items: center !important;
       overflow-x: auto !important;
       white-space: nowrap !important;
       padding-bottom: 6px !important;
+      padding-left: 4px !important; /* Small padding on left for aesthetic spacing */
       margin-bottom: 10px !important;
-      gap: 6px !important;
+      gap: 8px !important;
       -webkit-overflow-scrolling: touch !important;
       
       &::-webkit-scrollbar {

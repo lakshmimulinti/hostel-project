@@ -4,49 +4,73 @@ const bcrypt = require('bcryptjs');
 const { sendOtpEmail } = require('../config/mailer');
 
 // 1. SEND OTP
+// 1. SEND OTP
 exports.sendOtp = async (req, res) => {
     const { email, fullName, mobileNo } = req.body;
+
+    console.log("Step 1: Request received");
+    console.log("Email:", email);
 
     if (!email) {
         return res.status(400).json({ message: "Email is required" });
     }
 
     try {
-        let userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        let userResult = await pool.query(
+            "SELECT * FROM users WHERE email = $1",
+            [email]
+        );
+
+        console.log("Step 2: User checked");
 
         if (userResult.rows.length === 0) {
             if (!fullName) {
-                return res.status(400).json({ message: "User not found. Please Sign Up first." });
+                return res.status(400).json({
+                    message: "User not found. Please Sign Up first."
+                });
             }
+
             userResult = await pool.query(
-                'INSERT INTO users (full_name, email, mobile_no) VALUES ($1, $2, $3) RETURNING *',
+                "INSERT INTO users (full_name, email, mobile_no) VALUES ($1, $2, $3) RETURNING *",
                 [fullName, email, mobileNo || null]
             );
+
+            console.log("Step 3: New user created");
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
+        console.log("Step 4: OTP Generated:", otp);
+
         await pool.query(
-            'UPDATE users SET otp = $1, otp_expiry = $2 WHERE email = $3',
+            "UPDATE users SET otp = $1, otp_expiry = $2 WHERE email = $3",
             [otp, otpExpiry, email]
         );
 
+        console.log("Step 5: OTP saved in database");
+
+        console.log("Step 6: Sending email...");
+
         await sendOtpEmail(email, otp);
 
-        res.status(200).json({ message: "OTP sent successfully to your email." });
+        console.log("Step 7: Email sent successfully");
+
+        res.status(200).json({
+            message: "OTP sent successfully to your email."
+        });
 
     } catch (err) {
-    console.error("===== OTP ERROR =====");
-    console.error(err);
-    console.error(err.message);
-    console.error("=====================");
+        console.error("===== OTP ERROR =====");
+        console.error(err);
+        console.error(err.message);
+        console.error("=====================");
 
-    res.status(500).json({
-        error: "Server Error during sending OTP.",
-        message: err.message
-    });
-}
+        res.status(500).json({
+            error: "Server Error during sending OTP.",
+            message: err.message
+        });
+    }
 };
 
 // 2. VERIFY OTP & LOGIN
